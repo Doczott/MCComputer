@@ -1,0 +1,63 @@
+os.loadAPI("ocs/apis/sensor")
+switchSide = "right"
+
+local BC = sensor.wrap("top")
+
+local function TurnOn(side)
+  rs.setOutput(side, true)
+end
+
+local function TurnOff(side)
+  rs.setOutput(side, false)
+end
+
+
+local stored = 0 
+local cap = 0
+local running = true
+
+while true do
+
+local targets = BC.getTargets()
+
+for k, v in pairs(targets) do
+  if v.Name == "Redstone Energy Cell" then
+    rec = BC.getTargetDetails(k)
+    stored = stored + rec.EnergyStored
+    cap = cap + rec.MaxEnergyStored
+   end
+end
+
+percent = stored / cap * 100
+
+if running then
+  if percent > 98 then
+    running = false
+  end
+else
+  if percent < 2 then
+    running = true
+  end
+end
+
+if running then
+  TurnOn(switchSide)
+  runstr = "YES"
+else
+  TurnOff(switchSide)
+  runstr = "NO"
+end
+
+term.clear()
+term.setCursorPos(1,1)
+
+print("Stored   : ".. stored .. "MJ (" .. percent .. "%)")
+print("Capacity : " .. cap .. "MJ")
+print("Running  : " .. runstr)
+
+stored = 0
+cap = 0
+
+sleep(2)
+
+end

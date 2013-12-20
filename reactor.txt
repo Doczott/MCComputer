@@ -1,0 +1,63 @@
+os.loadAPI("ocs/apis/sensor")
+ReactorSide = "top"
+
+local IC2 = sensor.wrap("back")
+
+local function TurnOn(side)
+  rs.setOutput(side, true)
+end
+
+local function TurnOff(side)
+  rs.setOutput(side, false)
+end
+
+
+local stored = 0 
+local cap = 0
+local running = false
+
+while true do
+
+local targets = IC2.getTargets()
+
+for k, v in pairs(targets) do
+  if v.Name == "MFSU" then
+    mfsu = IC2.getTargetDetails(k)
+    stored = stored + mfsu.Stored
+    cap = cap + mfsu.Capacity
+   end
+end
+
+percent = stored / cap * 100
+
+if running then
+  if percent > 95 then
+    running = false
+  end
+else
+  if percent < 5 then
+    running = true
+  end
+end
+
+if running then
+  TurnOn(ReactorSide)
+  runstr = "YES"
+else
+  TurnOff(ReactorSide)
+  runstr = "NO"
+end
+
+term.clear()
+term.setCursorPos(1,1)
+
+print("Stored   : ".. stored .. "EU (" .. percent .. "%)")
+print("Capacity : " .. cap .. "EU")
+print("Running  : " .. runstr)
+
+stored = 0
+cap = 0
+
+sleep(2)
+
+end
