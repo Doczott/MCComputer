@@ -1,0 +1,75 @@
+os.loadAPI("ocs/apis/sensor")
+ 
+-- the location of the redstone lamp relative to the sensor
+local lootRun = {
+  X = {
+    min = -7,
+    max = -1},
+  Y = {
+    min = -2,
+    max = 1},
+  Z = {
+    min = -4,
+    max = -2}
+}
+ 
+ local killSpace = {
+  X = {
+    min = -1,
+    max = 4},
+  Y = {
+    min = -2,
+    max = 3},
+  Z = {
+    min = -4,
+    max = 0}
+}
+
+local ON = true
+local OFF = false
+
+function checkSpace(box, pos)
+  local bX = false
+  local bY = false
+  local bZ = false
+  
+  if pos.X > box.X.min and pos.X < box.X.max then
+    bX = true
+  end
+  if pos.Y > box.Y.min and pos.Y < box.Y.max then
+    bY = true
+  end
+  if pos.Z > box.Z.min and pos.Z < box.Z.max then
+    bZ = true
+  end
+  return bX and bY and bZ
+end
+ 
+function setRailgun(signal)
+  rs.setOutput("top", signal)
+end
+
+function setGrinder(signal)
+  rs.setOutput("bottom", signal)
+end
+
+local proximity = sensor.wrap("left")
+while true do
+  local bRailgun = OFF
+  local bGrinder = OFF
+  local targets = proximity.getTargets()
+  for k, v in pairs(targets) do
+    if checkSpace(lootRun, v.Position) then
+      bRailgun = ON   
+    end
+    if checkSpace(killSpace, v.Position) then
+      if rs.getInput("right") then
+        bGrinder = ON
+      else
+        bRailgun = ON
+      end
+    end
+  end
+  setRailgun(bRailgun)
+  setGrinder(bGrinder)
+end
