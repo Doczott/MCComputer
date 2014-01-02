@@ -72,4 +72,5 @@ while true do
   end
   setRailgun(bRailgun)
   setGrinder(bGrinder)
+  sleep(1)
 end
