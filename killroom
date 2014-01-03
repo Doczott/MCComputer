@@ -57,18 +57,24 @@ local proximity = sensor.wrap("left")
 while true do
   local bRailgun = OFF
   local bGrinder = OFF
+  local ksCount = 0
   local targets = proximity.getTargets()
   for k, v in pairs(targets) do
     if checkSpace(lootRun, v.Position) then
       bRailgun = ON   
     end
     if checkSpace(killSpace, v.Position) then
+      ksCount = ksCount + 1
       if rs.getInput("right") then
         bGrinder = ON
       else
         bRailgun = ON
       end
     end
+  end
+  if ksCount > 10 then
+    bRailgun = ON
+    bGrinder = ON
   end
   setRailgun(bRailgun)
   setGrinder(bGrinder)
